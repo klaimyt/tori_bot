@@ -1,11 +1,8 @@
 const pptr = require('puppeteer')
+//Login data
+const {email, password} = require('./secret.js') 
 
 async function main() {
-  // Login data
-  const email = ''
-  const password = ''
-
-
   const browser = await pptr.launch({
     headless: false,
     slowMo: 100
