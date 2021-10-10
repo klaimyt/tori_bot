@@ -15,14 +15,17 @@ async function htmlScrapingFrom(url) {
     const priceString = $('.list_price.ineuros').text()
     // Get actual number from string. Set 0 if string empty
     const price = priceString ? parseInt(priceString.replace(/[€ ]/g, '')) : 0
+    const id = product.attribs.id ? product.attribs.id : product.childNodes[1].attribs.id
     // Product object
     return {
       name: $('.li-title').text(),
-      id: product.attribs.id.replace('item_', ''),
+      id: id.replace(/.*item_/g, ''),
       link: product.attribs.href,
       price: price
     }
   })
+
+  return products
 }
 
 module.exports = htmlScrapingFrom
