@@ -1,7 +1,14 @@
-﻿const axios = require('axios')
-const cheerio = require('cheerio')
+﻿import axios from 'axios'
+import cheerio from 'cheerio'
 
-async function htmlScrapingFrom(url) {
+interface product {
+  name: string,
+  price: number,
+  id: number,
+  link: string
+}
+
+async function htmlScrapingFrom(url: string): Promise<product[]> {
   const htmlFile = await axios.get(url).then(response => {
     return response.data
   })
@@ -15,11 +22,11 @@ async function htmlScrapingFrom(url) {
     const priceString = $('.list_price.ineuros').text()
     // Get actual number from string. Set 0 if string empty
     const price = priceString ? parseInt(priceString.replace(/[€ ]/g, '')) : 0
-    const id = product.attribs.id ? product.attribs.id : product.childNodes[1].attribs.id
     // Product object
+    if (!product.attribs.id) return
     return {
       name: $('.li-title').text(),
-      id: id.replace(/.*item_/g, ''),
+      id: parseInt(product.attribs.id.replace(/.*item_/g, '')),
       link: product.attribs.href,
       price: price
     }
@@ -28,4 +35,4 @@ async function htmlScrapingFrom(url) {
   return products
 }
 
-module.exports = htmlScrapingFrom
+export default htmlScrapingFrom

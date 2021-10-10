@@ -1,6 +1,6 @@
-const pptr = require('puppeteer')
+import pptr from 'puppeteer'
 
-async function sendMessage(url, wsEndpoint, message) {
+async function sendMessage(url: string, wsEndpoint: string, message: string) {
   const browser = await pptr.connect({
     browserWSEndpoint: wsEndpoint
   })
@@ -17,4 +17,4 @@ async function sendMessage(url, wsEndpoint, message) {
   await browser.disconnect()
 }
 
-module.exports = sendMessage
+export default sendMessage

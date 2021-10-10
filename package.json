@@ -2,7 +2,7 @@
   "name": "tori_bot",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "mindex.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -13,5 +13,9 @@
     "axios": "^0.22.0",
     "cheerio": "^1.0.0-rc.10",
     "puppeteer": "^10.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^16.10.3",
+    "typescript": "^4.4.3"
   }
 }
