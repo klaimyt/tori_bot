@@ -1,13 +1,6 @@
 ﻿import axios from 'axios'
 import cheerio from 'cheerio'
 
-interface product {
-  name: string,
-  price: number,
-  id: number,
-  link: string
-}
-
 async function htmlScrapingFrom(url: string): Promise<product[]> {
   const htmlFile = await axios.get(url).then(response => {
     return response.data
