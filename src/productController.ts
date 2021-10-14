@@ -20,7 +20,10 @@ class ProductController {
   async update() {
     const newProducts = await dataScraper(this.url)
     for (let newProduct of newProducts) {
-      if (newProduct && !this.processedProducts.some(processedProduct => processedProduct.id === newProduct.id)) { // Check if there is new product
+      if (newProduct && this.processedProducts.some(processedProduct => {
+        if (!processedProduct) return false
+        processedProduct.id !== newProduct.id
+      })) { // Check if there is new product
         this.sendMessage(newProduct.link)
         this.processedProducts.push(newProduct)
       }
