@@ -1,5 +1,6 @@
 import dataScraper from "./dataScraper";
 import messageSender from "./messageSender";
+import productFilter from "./productFilter";
 
 // TODO: Add smth like boolean state to product interface and check if it's already passed filtering. Or smth else to avoid execution filter method for same object each loop cycle.
 
@@ -8,10 +9,10 @@ class ProductController {
   private _url: string;
   private _messageTemplate: string;
   private _wsEndPoint: string;
+  private _isRunning: boolean;
   private _priceFrom: number;
   private _priceTo: number;
   private _skipWords: string[];
-  private _isRunning: boolean;
 
   constructor(
     delay: number,
@@ -30,9 +31,14 @@ class ProductController {
   private async update() {
     const newProducts = await dataScraper(this._url);
     for (let newProduct of newProducts) {
-      if (this.filter(newProduct)) {
-        this.sendMessage(newProduct.link);
-        this._processedProducts.push(newProduct);
+      const productIsNew = this._processedProducts.some((processedProduct) => {
+        if (!processedProduct) return false;
+        return processedProduct.id !== newProduct.id;
+      })
+      if (productIsNew &&
+        productFilter(newProduct, this._priceFrom, this._priceTo, this._skipWords)) {
+          this.sendMessage(newProduct.link);
+          this._processedProducts.push(newProduct);
       }
     }
   }
@@ -50,41 +56,6 @@ class ProductController {
       this.update();
       await this.sleep(delay);
     }
-  }
-
-  private filter(product: product): boolean {
-    // Filtering by price
-    const priceFilter = (): boolean => {
-      const fromPrice = (lowestPrice?: number): boolean => {
-        return (product.price > lowestPrice) ?? true;
-      };
-
-      const highestPrice = (highestPrice?: number): boolean => {
-        return (product.price < highestPrice) ?? true;
-      };
-
-      return fromPrice(this._priceFrom) && highestPrice(this._priceTo);
-    };
-
-    // Filtering by words in name
-    const wordFilter = (): boolean => {
-      for (const word of this._skipWords) {
-        if (product.name.includes(word)) return true
-      }
-      return false
-    }
-
-    // Method return
-    return (
-      product &&
-      priceFilter() &&
-      wordFilter() &&
-      this._processedProducts.some((processedProduct) => {
-        // Check if there is new product
-        if (!processedProduct) return false;
-        return processedProduct.id !== product.id;
-      })
-    )
   }
 
   stop() {
