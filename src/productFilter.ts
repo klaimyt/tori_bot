@@ -2,15 +2,11 @@ export default function productFilter(product: product, priceFrom?: number, pric
   if (!product) return false
   // Filtering by price
   function priceFilter(priceFrom: number, priceTo: number) {
-    const fromPrice = (lowestPrice?: number): boolean => {
-      return lowestPrice ? product.price > lowestPrice : true;
-    };
 
-    const highestPrice = (highestPrice?: number): boolean => {
-      return highestPrice ? product.price < highestPrice : true;
-    };
+    const lowestPrice = (priceFrom?: number) => priceFrom ? product.price > priceFrom : true;
+    const highestPrice = (priceTo?: number) => priceTo ? product.price < priceTo : true;
 
-    return fromPrice(priceFrom) && highestPrice(priceTo);
+    return lowestPrice(priceFrom) && highestPrice(priceTo);
   }
 
   // Filter by words
