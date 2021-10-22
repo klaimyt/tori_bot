@@ -3,21 +3,30 @@ import * as fs from "fs";
 
 class FileDriver implements IDataBase {
   private _path: string
+  private static instance: FileDriver
 
-  constructor(dbPath: string = './Storage/database.json') {
+  constructor(dbPath: string = './src/Model/DB/Storage/database.json') {
+    if (FileDriver.instance) {
+      return FileDriver.instance
+    }
+    FileDriver.instance = this
     this._path = dbPath
     this.checkPath(dbPath)
+    return this
   }
 
   private checkPath(path: string) {
-    if (!fs.existsSync(path)) {
-      const fileName = path.split('/').pop()
-      const foldersPath = path.replace(fileName, '')
-      if (!fs.existsSync(foldersPath)) {
-        fs.mkdirSync(foldersPath, {recursive: true})
-      }
-      fs.writeFileSync(fileName, '')
+    const fileName = path.split('/').pop()
+    const foldersPath = path.replace(fileName, '')
+    if (!fs.existsSync(foldersPath)) {
+      fs.mkdirSync(foldersPath, {recursive: true})
     } 
+    try {
+      fs.writeFileSync(path, '')
+    } catch (err) {
+      console.error('DB PATH ERROR', err)
+    }
+    
   }
 
   getAll() {
@@ -66,3 +75,5 @@ class FileDriver implements IDataBase {
     }
   }
 }
+
+export default FileDriver
