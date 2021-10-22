@@ -4,7 +4,7 @@ import * as fs from "fs";
 class FileDriver implements IDataBase {
   private _path: string
 
-  constructor(dbPath: string = './database.json') {
+  constructor(dbPath: string = './Storage/database.json') {
     this._path = dbPath
     this.checkPath(dbPath)
   }
