@@ -1,4 +1,4 @@
-import productFilter from './productFilter'
+import productFilter from '../Model/productFilter'
 
 const product1 = {
   name: "Asus rog rtx 3070 super",

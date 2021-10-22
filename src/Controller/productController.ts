@@ -1,6 +1,6 @@
-import dataScraper from "./dataScraper";
-import messageSender from "./messageSender";
-import productFilter from "./productFilter";
+import dataScraper from "../Model/dataScraper";
+import messageSender from "../Model/messageSender";
+import productFilter from "../Model/productFilter";
 
 // TODO: Add smth like boolean state to product interface and check if it's already passed filtering. Or smth else to avoid execution filter method for same object each loop cycle.
 
