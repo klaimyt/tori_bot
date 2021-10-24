@@ -1,17 +1,20 @@
-import { IDataBase, dbSchema } from "./DataInterface";
+import { IDataBase, dbSchema, filterSchema } from "./DataInterface";
 import * as fs from "fs";
 
 class FileDriver implements IDataBase {
   private _path: string
-  private static instance: FileDriver
+  private static _instance: FileDriver
+  private static _lastId: number
 
   constructor(dbPath: string = './src/Model/DB/Storage/database.json') {
-    if (FileDriver.instance) {
-      return FileDriver.instance
+    if (FileDriver._instance) {
+      return FileDriver._instance
     }
-    FileDriver.instance = this
+    FileDriver._instance = this
     this._path = dbPath
     this.checkPath(dbPath)
+    const lastDbObject = this.getAll().pop()
+    FileDriver._lastId = lastDbObject ? lastDbObject.id : 0
     return this
   }
 
@@ -21,17 +24,19 @@ class FileDriver implements IDataBase {
     if (!fs.existsSync(foldersPath)) {
       fs.mkdirSync(foldersPath, {recursive: true})
     } 
-    try {
-      fs.writeFileSync(path, '')
-    } catch (err) {
-      console.error('DB PATH ERROR', err)
+    if (!fs.existsSync(path)) {
+      try {
+        fs.writeFileSync(path, '[]')
+      } catch (err) {
+        console.error('DB PATH ERROR', err)
+      }
     }
     
   }
 
   getAll() {
     const products = JSON.parse(fs.readFileSync(this._path).toString()) as dbSchema[]
-    return products.length > 0 ? products : null 
+    return products
   }
 
   getById(id: number) {
@@ -39,9 +44,9 @@ class FileDriver implements IDataBase {
     return products.find(product => product.id === id) ?? null
   }
 
-  add(data: dbSchema) {
+  add(url: string, filter: filterSchema) {
     const products = this.getAll()
-    products.push(data)
+    products.push({url: url, filter: filter, id: this.setId()})
     return this.save(products)
   }
 
@@ -55,12 +60,12 @@ class FileDriver implements IDataBase {
     return removedProduct
   }
 
-  update(newProduct: dbSchema, id: number) {
+  update(newProduct: {url: string, filter?: filterSchema}, id: number) {
     const products = this.getAll()
     const productIndex = products.findIndex(product => product.id === id)
     if (!productIndex) return null
     const unapdatedProduct = products[productIndex] // Capture old data before update
-    products[productIndex] = newProduct
+    products[productIndex] = {...unapdatedProduct, ...newProduct}
     if (!this.save(products)) return null
     return unapdatedProduct
   }
@@ -73,6 +78,12 @@ class FileDriver implements IDataBase {
       console.error(err)
       return false
     }
+  }
+
+  private setId() {
+    // If undefined set 1 else add 1
+    FileDriver._lastId = FileDriver._lastId ? FileDriver._lastId += 1 : 1
+    return FileDriver._lastId
   }
 }
 
