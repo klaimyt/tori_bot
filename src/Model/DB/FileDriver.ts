@@ -53,17 +53,23 @@ class FileDriver implements IDataBase {
   remove(id: number) {
     const products = this.getAll()
     const productIndex = products.findIndex(product => product.id === id)
-    if (!productIndex) return null
-    const [removedProduct] = products.slice(productIndex, 1)
+    if (productIndex < 0) return null
+    const [removedProduct] = products.splice(productIndex, 1)
     this.save(products)
     if (!this.save(products)) return null
     return removedProduct
   }
 
+  removeAll() {
+    const oldData = this.getAll()
+    fs.writeFileSync(this._path, '[]')
+    return oldData
+  }
+
   update(newProduct: {url: string, filter?: filterSchema}, id: number) {
     const products = this.getAll()
     const productIndex = products.findIndex(product => product.id === id)
-    if (!productIndex) return null
+    if (productIndex < 0) return null
     const unapdatedProduct = products[productIndex] // Capture old data before update
     products[productIndex] = {...unapdatedProduct, ...newProduct}
     if (!this.save(products)) return null
@@ -83,6 +89,10 @@ class FileDriver implements IDataBase {
   private setId() {
     // If undefined set 1 else add 1
     FileDriver._lastId = FileDriver._lastId ? FileDriver._lastId += 1 : 1
+    return FileDriver._lastId
+  }
+
+  getLastId() {
     return FileDriver._lastId
   }
 }
